@@ -122,7 +122,7 @@ def process_profile(page, profile, applied):
     target_resume_title = profile["resume_title"]
 
     url = f"https://hh.ru/resume/{resume_id}/similar_vacancies"
-    page.goto(url)
+    page.goto(url, timeout=60000, wait_until="domcontentloaded")
     page.wait_for_load_state("domcontentloaded")
     check_for_captcha(page)
 
@@ -159,7 +159,7 @@ def process_profile(page, profile, applied):
         vid = vac["id"]
         print(f"Processing: {vid} (Applicants: {vac['app_count']})")
 
-        page.goto(vac["link"])
+        page.goto(vac["link"], timeout=60000, wait_until="domcontentloaded")
         page.wait_for_load_state("domcontentloaded")
         check_for_captcha(page)
         simulate_mouse_movement(page)
@@ -242,6 +242,7 @@ def main():
                 "--disable-infobars",
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
+                "--no-proxy-server",
             ],
         )
 
