@@ -209,15 +209,18 @@ def process_profile(page, profile, applied):
         human_delay(1, 3)
 
     print("[DEBUG] Сбор элементов вакансий...")
-    vacancy_elements = page.locator('[data-qa="vacancy-serp__vacancy"]').all()
-    print(f"[DEBUG] Найдено элементов на странице: {len(vacancy_elements)}")
 
+    vacancy_elements = page.locator('[data-qa="vacancy-serp__vacancy"]').all()
     vacancies_data = []
+
     for el in vacancy_elements:
         try:
-            title_el = el.locator('[data-qa="vacancy-serp__vacancy-title"]')
-            title_text = title_el.inner_text()
-            link = title_el.get_attribute("href")
+            title_el = el.locator('[data-qa="serp-item__title-text"]').first
+            title_text = title_el.inner_text(timeout=2000).strip()
+
+            link_el = el.locator('a[data-qa="serp-item__title"]').first
+            link = link_el.get_attribute("href", timeout=2000)
+
             vid_match = re.search(r"/vacancy/(\d+)", link)
             if not vid_match:
                 continue
@@ -237,7 +240,8 @@ def process_profile(page, profile, applied):
                     "app_count": app_count,
                 }
             )
-        except Exception:
+        except Exception as e:
+            print(f"[DEBUG ERROR] Ошибка парсинга отдельной карточки: {e}")
             continue
 
     vacancies_data.sort(key=lambda x: x["app_count"])
